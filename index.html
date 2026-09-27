@@ -23,7 +23,7 @@ body {
     background-color: #fcfbf7;
     color: #0f172a;
     padding-top: env(safe-area-inset-top);
-    padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+    padding-bottom: calc(7.5rem + env(safe-area-inset-bottom));
 }
 h1, h2, h3, h4, .font-funky, .nav-btn span, button, label, select {
     font-family: 'Fredoka', cursive, -apple-system, sans-serif;
@@ -95,8 +95,10 @@ input, select {
     50% { top: 88%; }
     100% { top: 8%; }
 }
-.safe-bottom {
-    padding-bottom: calc(0.75rem + env(safe-area-inset-bottom));
+.iphone-nav-bar {
+    bottom: calc(1rem + env(safe-area-inset-bottom));
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
 }
 @media print {
     body { background: white; color: black; padding: 0; }
@@ -276,7 +278,7 @@ input, select {
 
 </main>
 
-<nav class="fixed bottom-0 left-0 right-0 glass-header border-t border-amber-200/60 px-6 py-2 z-50 safe-bottom no-print">
+<nav class="fixed left-4 right-4 glass-header border border-amber-200/80 rounded-full px-6 z-50 iphone-nav-bar shadow-lg no-print">
     <div class="max-w-md mx-auto flex justify-between items-center">
         <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn flex flex-col items-center text-yellow-600">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
@@ -289,7 +291,7 @@ input, select {
         </button>
 
         <button onclick="switchTab('group')" id="nav-group" class="nav-btn flex flex-col items-center text-slate-400">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
             <span class="text-[11px] font-bold mt-0.5">Gruppo</span>
         </button>
 
@@ -428,7 +430,7 @@ async function init() {
         await initDB();
         await loadDataFromDB();
     } catch (e) {
-        console.warn("Inizializzazione IndexedDB fallita, prosiguo in memoria local:", e);
+        console.warn("Inizializzazione IndexedDB fallita, prosiguo in memoria locale:", e);
     }
 
     const list = document.getElementById('allergens-list');
