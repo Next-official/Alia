@@ -289,7 +289,7 @@ input, select {
         </button>
 
         <button onclick="switchTab('group')" id="nav-group" class="nav-btn flex flex-col items-center text-slate-400">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
             <span class="text-[11px] font-bold mt-0.5">Gruppo</span>
         </button>
 
@@ -341,11 +341,99 @@ const TRANSLATIONS = {
 let userState = {};
 let groupMembers = [];
 let mediaStream = null;
+let db = null;
 
-function init() {
-    const list = document.getElementById('allergens-list');
+function initDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open("AliaDatabase", 1);
+
+        request.onupgradeneeded = function(event) {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains("userState")) {
+                db.createObjectStore("userState", { keyPath: "id" });
+            }
+            if (!db.objectStoreNames.contains("groupMembers")) {
+                db.createObjectStore("groupMembers", { keyPath: "id", autoIncrement: true });
+            }
+        };
+
+        request.onsuccess = function(event) {
+            db = event.target.result;
+            resolve(db);
+        };
+
+        request.onerror = function(event) {
+            console.error("IndexedDB Error:", event.target.errorCode);
+            reject(event.target.errorCode);
+        };
+    });
+}
+
+function saveUserStateToDB(id, state) {
+    if (!db) return;
+    const tx = db.transaction("userState", "readwrite");
+    const store = tx.objectStore("userState");
+    store.put({ id: id, state: state });
+}
+
+function saveAllGroupMembersToDB() {
+    if (!db) return;
+    const tx = db.transaction("groupMembers", "readwrite");
+    const store = tx.objectStore("groupMembers");
+    store.clear().onsuccess = () => {
+        groupMembers.forEach(member => {
+            store.add(member);
+        });
+    };
+}
+
+function loadDataFromDB() {
+    return new Promise((resolve) => {
+        if (!db) {
+            resolve();
+            return;
+        }
+
+        const txUser = db.transaction("userState", "readonly");
+        const storeUser = txUser.objectStore("userState");
+        const requestUser = storeUser.getAll();
+
+        requestUser.onsuccess = function() {
+            if (requestUser.result.length > 0) {
+                requestUser.result.forEach(item => {
+                    userState[item.id] = item.state;
+                });
+            }
+
+            const txGroup = db.transaction("groupMembers", "readonly");
+            const storeGroup = txGroup.objectStore("groupMembers");
+            const requestGroup = storeGroup.getAll();
+
+            requestGroup.onsuccess = function() {
+                if (requestGroup.result.length > 0) {
+                    groupMembers = requestGroup.result.map(m => ({ name: m.name, needs: m.needs }));
+                }
+                resolve();
+            };
+        };
+    });
+}
+
+async function init() {
     ALLERGENS.forEach(allergen => {
         userState[allergen.id] = "no";
+    });
+
+    try {
+        await initDB();
+        await loadDataFromDB();
+    } catch (e) {
+        console.warn("Inizializzazione IndexedDB fallita, prosiguo in memoria local:", e);
+    }
+
+    const list = document.getElementById('allergens-list');
+    ALLERGENS.forEach(allergen => {
+        const state = userState[allergen.id] || "no";
         const card = document.createElement('div');
         card.className = "bg-white p-3.5 rounded-2xl border border-slate-200 flex items-center justify-between shadow-sm min-w-0 gap-3";
         card.innerHTML = `
@@ -353,12 +441,15 @@ function init() {
                 <h4 class="text-xs font-bold text-slate-800">${allergen.names.it}</h4>
                 <p class="text-[11px] text-slate-400 font-medium leading-tight mt-0.5">${allergen.desc}</p>
             </div>
-            <div class="tri-state-switch" data-state="no" id="switch-${allergen.id}" onclick="cycleState('${allergen.id}')">
+            <div class="tri-state-switch" data-state="${state}" id="switch-${allergen.id}" onclick="cycleState('${allergen.id}')">
                 <div class="tri-state-thumb"></div>
             </div>
         `;
         list.appendChild(card);
     });
+
+    renderGroupMembers();
+    renderGroupMatrix();
     updatePass();
 }
 
@@ -374,6 +465,7 @@ function cycleState(id) {
     userState[id] = nextState;
     switchEl.setAttribute('data-state', nextState);
 
+    saveUserStateToDB(id, nextState);
     updatePass();
     renderGroupMatrix();
 }
@@ -556,6 +648,7 @@ function addGroupMember() {
     groupMembers.push({ name, needs: activeUserAllergens });
     input.value = "";
     
+    saveAllGroupMembersToDB();
     renderGroupMembers();
     renderGroupMatrix();
 }
@@ -576,6 +669,7 @@ function renderGroupMembers() {
 
 function removeGroupMember(idx) {
     groupMembers.splice(idx, 1);
+    saveAllGroupMembersToDB();
     renderGroupMembers();
     renderGroupMatrix();
 }
