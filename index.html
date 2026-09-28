@@ -32,7 +32,7 @@ input, select {
     font-size: 16px !important;
 }
 .glass-header {
-    background: rgba(255, 255, 255, 0.88);
+    background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
 }
@@ -100,6 +100,68 @@ input, select {
     padding-bottom: 0.5rem;
     padding-top: 0.5rem;
 }
+
+.ai-orb-outer {
+    position: relative;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background-color: #eab308;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+.ai-orb-outer:active {
+    transform: scale(0.92);
+}
+.ai-circle-1 {
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: rgba(60, 40, 0, 0.45);
+    top: 6px;
+    left: 6px;
+    animation: floatOrbit1 4s ease-in-out infinite alternate;
+}
+.ai-circle-2 {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: rgba(40, 25, 0, 0.5);
+    bottom: 5px;
+    right: 5px;
+    animation: floatOrbit2 3.5s ease-in-out infinite alternate;
+}
+.ai-orb-outer.listening .ai-circle-1 {
+    animation: pulseListen1 0.8s infinite alternate;
+    background-color: rgba(225, 29, 72, 0.6);
+}
+.ai-orb-outer.listening .ai-circle-2 {
+    animation: pulseListen2 0.8s infinite alternate;
+    background-color: rgba(180, 20, 50, 0.6);
+}
+@keyframes floatOrbit1 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(10px, 12px) scale(1.1); }
+}
+@keyframes floatOrbit2 {
+    0% { transform: translate(0, 0) scale(1); }
+    100% { transform: translate(-8px, -10px) scale(0.95); }
+}
+@keyframes pulseListen1 {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.35); }
+}
+@keyframes pulseListen2 {
+    0% { transform: scale(1.1); }
+    100% { transform: scale(0.8); }
+}
+
 @media print {
     body { background: white; color: black; padding: 0; }
     .no-print { display: none !important; }
@@ -113,15 +175,20 @@ input, select {
 </head>
 <body class="select-none antialiased min-h-full flex flex-col">
 
-<header class="sticky top-0 z-40 glass-header border-b border-amber-200/60 px-5 py-3 no-print">
+<header class="sticky top-0 z-40 glass-header border-b border-amber-200/60 px-4 py-2.5 no-print">
     <div class="max-w-md mx-auto flex items-center justify-between">
-        <div class="flex items-center gap-3">
-            <img src="logo.png" alt="Logo" class="w-10 h-10 object-contain rounded-2xl shadow-sm bg-yellow-400 p-1 border border-yellow-300">
+        <div class="flex items-center gap-2.5">
+            <img src="logo.png" alt="Logo Alia" class="w-9 h-9 object-contain rounded-xl bg-yellow-400 p-0.5 border border-yellow-300 shadow-sm" onerror="this.style.display='none'">
             <div class="flex flex-col">
                 <h1 class="text-xl font-bold tracking-wide text-slate-900 leading-none">Alia</h1>
-                <p class="text-[11px] text-slate-400 font-medium leading-tight mt-1">Inclusione Alimentare</p>
+                <p class="text-[10px] text-slate-400 font-medium leading-tight mt-0.5">Inclusione Alimentare</p>
             </div>
         </div>
+
+        <button onclick="switchTab('sos')" class="bg-rose-600 hover:bg-rose-700 text-white text-xs font-funky font-bold px-3.5 py-1.5 rounded-full shadow-sm active:scale-95 transition flex items-center gap-1.5 border border-rose-500">
+            <span class="w-2 h-2 rounded-full bg-white animate-pulse"></span>
+            <span>SOS</span>
+        </button>
     </div>
 </header>
 
@@ -173,7 +240,7 @@ input, select {
 
         <div class="flex items-center gap-2">
             <label class="flex-1 bg-white border border-amber-200/80 rounded-2xl p-3.5 text-center text-xs font-bold text-slate-800 font-funky cursor-pointer shadow-sm active:bg-amber-50 transition">
-                <span>Carica Foto</span>
+                <span>Carica Foto Etichetta</span>
                 <input type="file" accept="image/*" capture="environment" class="hidden" onchange="handleImageUpload(event)">
             </label>
         </div>
@@ -200,24 +267,64 @@ input, select {
         </div>
     </section>
 
-    <section id="sec-group" class="tab-content space-y-4 hidden">
+    <section id="sec-ai" class="tab-content space-y-4 hidden">
         <div>
-            <h2 class="text-2xl font-bold text-slate-900 tracking-wide">Gruppo a tavola Safe</h2>
-            <p class="text-xs text-slate-400 font-medium mt-0.5">Gestione partecipanti ed esigenze di gruppo</p>
+            <h2 class="text-2xl font-bold text-slate-900 tracking-wide text-center">Alia AI Assistant</h2>
+            <p class="text-xs text-slate-400 font-medium mt-0.5 text-center">La tua intelligenza artificiale per l'alimentazione sicura</p>
         </div>
 
-        <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-            <div class="flex items-center gap-2">
-                <input type="text" id="member-name" placeholder="Nome partecipante..." class="flex-1 min-w-0 bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2.5 text-slate-800 placeholder-slate-400 focus:outline-none focus:border-yellow-500">
-                <button onclick="addGroupMember()" class="bg-yellow-400 text-slate-900 px-4 py-2.5 rounded-2xl text-xs font-funky font-bold hover:bg-yellow-500 transition shadow-sm shrink-0">Aggiungi</button>
+        <div class="bg-white rounded-3xl border border-amber-200/80 shadow-sm p-4 flex flex-col h-[420px]">
+            <div id="ai-chat-history" class="flex-1 overflow-y-auto space-y-3 pr-1 text-xs">
+                <div class="bg-amber-50 text-slate-800 p-3.5 rounded-2xl rounded-tl-none border border-amber-200/60 leading-relaxed">
+                    Ciao! Sono <strong>Alia AI</strong>. Posso aiutarti a verificare gli ingredienti, consigliarti alternative sicure per il tuo profilo o rispondere alle tue domande su intolleranze e contaminazioni. Parlami o scrivimi pure!
+                </div>
             </div>
-            <div id="group-members-list" class="flex flex-wrap gap-1.5"></div>
+
+            <div class="pt-3 border-t border-slate-100 flex items-center gap-2 mt-2">
+                <button id="ai-mic-btn" onclick="toggleVoiceRecognition()" class="p-2.5 rounded-2xl bg-amber-100 text-amber-800 hover:bg-yellow-400 transition shrink-0 border border-amber-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+                </button>
+                <input type="text" id="ai-user-input" placeholder="Chiedi qualcosa ad Alia AI..." class="flex-1 bg-slate-50 border border-slate-200 rounded-2xl px-3.5 py-2 text-xs focus:outline-none focus:border-yellow-500" onkeypress="if(event.key==='Enter') sendAiMessage()">
+                <button onclick="sendAiMessage()" class="bg-yellow-400 text-slate-900 px-4 py-2 rounded-2xl font-funky font-bold text-xs hover:bg-yellow-500 transition shrink-0">Invia</button>
+            </div>
         </div>
 
-        <div class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider font-funky">Matrice Inclusione Gruppo</h3>
-            <div id="group-matrix" class="space-y-2">
-                <p class="text-xs text-slate-400 italic">Aggiungi membri per calcolare le esigenze del gruppo.</p>
+        <div class="space-y-2">
+            <span class="text-[11px] text-slate-400 font-bold tracking-wider uppercase block text-center">DOMANDE FREQUENTI</span>
+            <div class="flex gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+                <button onclick="askAiQuick('Cosa posso mangiare al posto del glutine?')" class="bg-white border border-slate-200 px-3.5 py-2 rounded-2xl text-slate-700 active:bg-slate-50 shrink-0 shadow-sm font-medium">Alternative al Glutine</button>
+                <button onclick="askAiQuick('Come evitare contaminazioni da nichel?')" class="bg-white border border-slate-200 px-3.5 py-2 rounded-2xl text-slate-700 active:bg-slate-50 shrink-0 shadow-sm font-medium">Consigli Nichel</button>
+                <button onclick="askAiQuick('Controlla i miei allergeni a rischio')" class="bg-white border border-slate-200 px-3.5 py-2 rounded-2xl text-slate-700 active:bg-slate-50 shrink-0 shadow-sm font-medium">I miei Allergeni</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="sec-tips" class="tab-content space-y-4 hidden">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-900 tracking-wide">Consigli e Sicurezza</h2>
+            <p class="text-xs text-slate-400 font-medium mt-0.5">Guida alla prevenzione e corrette abitudini</p>
+        </div>
+
+        <div class="bg-white p-5 rounded-3xl border border-amber-200/80 shadow-sm space-y-4 relative flex flex-col justify-between min-h-[220px]">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span id="tip-number" class="p-2 bg-amber-100 text-amber-800 rounded-xl font-bold text-xs font-funky">01 / 10</span>
+                    <h3 id="tip-title" class="font-bold text-slate-800 text-sm"></h3>
+                </div>
+            </div>
+
+            <p id="tip-content" class="text-xs text-slate-600 leading-relaxed font-medium my-auto py-2"></p>
+
+            <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                <button onclick="prevTip()" class="bg-amber-100 text-slate-800 p-2.5 rounded-2xl hover:bg-yellow-400 transition active:scale-95 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+
+                <div id="tip-indicators" class="flex gap-1"></div>
+
+                <button onclick="nextTip()" class="bg-amber-100 text-slate-800 p-2.5 rounded-2xl hover:bg-yellow-400 transition active:scale-95 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                </button>
             </div>
         </div>
     </section>
@@ -276,28 +383,66 @@ input, select {
         </div>
     </section>
 
+    <section id="sec-sos" class="tab-content space-y-4 hidden">
+        <div class="bg-rose-50 border-2 border-rose-500 p-5 rounded-3xl space-y-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-rose-600 rounded-2xl flex items-center justify-center text-white font-bold text-lg font-funky shrink-0">!</div>
+                <div>
+                    <h2 class="text-xl font-bold text-rose-900 tracking-wide">Emergenza Allergia</h2>
+                    <p class="text-xs text-rose-700 font-medium">Guida rapida ai soccorsi</p>
+                </div>
+            </div>
+            
+            <p class="text-xs text-rose-800 leading-relaxed font-medium">In caso di reazione allergica acuta o sospetto shock anafilattico, mantieni la calma e segui immediatamente questi passaggi:</p>
+
+            <div class="space-y-2 pt-2">
+                <a href="tel:112" class="w-full bg-rose-600 text-white font-funky font-bold text-sm py-3 px-4 rounded-2xl text-center block shadow-md hover:bg-rose-700 transition">
+                    CHIAMA SUBITO IL 112
+                </a>
+            </div>
+
+            <div class="bg-white/80 p-3.5 rounded-2xl space-y-1.5 text-xs text-slate-800 border border-rose-200">
+                <p class="font-bold text-rose-900">Azione Immediata:</p>
+                <ul class="list-disc pl-4 space-y-1 text-slate-700">
+                    <li>Usa l'autoiniettore di Adrenalina se prescritto.</li>
+                    <li>Fai sedere o stendere la persona (non alzarla improvvisamente).</li>
+                    <li>Mostra ai soccorritori la scheda degli allergeni di Alia.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
 </main>
 
-<nav class="fixed left-4 right-4 glass-header border border-amber-200/80 rounded-full px-6 z-50 iphone-nav-bar shadow-lg no-print">
-    <div class="max-w-md mx-auto flex justify-between items-center">
+<nav class="fixed left-4 right-4 glass-header border border-amber-200/80 rounded-full px-4 z-50 iphone-nav-bar shadow-lg no-print">
+    <div class="max-w-md mx-auto flex justify-between items-center relative">
+        
         <button onclick="switchTab('profile')" id="nav-profile" class="nav-btn flex flex-col items-center text-yellow-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-            <span class="text-[11px] font-bold mt-0.5">Profilo</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+            <span class="text-[10px] font-bold mt-0.5">Profilo</span>
         </button>
 
         <button onclick="switchTab('scanner')" id="nav-scanner" class="nav-btn flex flex-col items-center text-slate-400">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-            <span class="text-[11px] font-bold mt-0.5">Scanner</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            <span class="text-[10px] font-bold mt-0.5">Scanner</span>
         </button>
 
-        <button onclick="switchTab('group')" id="nav-group" class="nav-btn flex flex-col items-center text-slate-400">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-            <span class="text-[11px] font-bold mt-0.5">Gruppo</span>
+        <div class="flex flex-col items-center -mt-5">
+            <button onclick="switchTab('ai')" id="nav-ai" class="ai-orb-outer shadow-md" title="Alia AI">
+                <div class="ai-circle-1"></div>
+                <div class="ai-circle-2"></div>
+            </button>
+            <span class="text-[10px] font-bold mt-0.5 text-slate-600 font-funky">Alia AI</span>
+        </div>
+
+        <button onclick="switchTab('tips')" id="nav-tips" class="nav-btn flex flex-col items-center text-slate-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+            <span class="text-[10px] font-bold mt-0.5">Consigli</span>
         </button>
 
         <button onclick="switchTab('pass')" id="nav-pass" class="nav-btn flex flex-col items-center text-slate-400">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-            <span class="text-[11px] font-bold mt-0.5">Pass</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            <span class="text-[10px] font-bold mt-0.5">Pass</span>
         </button>
     </div>
 </nav>
@@ -328,6 +473,19 @@ const PRESETS = [
     { name: "Cioccolato Fondente", text: "Ingredienti: Pasta di cacao, zucchero, burro di cacao, emulsionante: lecitina di soia, estratto di vaniglia. Può contenere tracce di frutta a guscio e latte." }
 ];
 
+const TIPS = [
+    { title: "Contaminazione Crociata", text: "Usa utensili distinti per preparare cibi privi di allergeni. Un tagliere in legno può trattenere tracce di glutine o frutta a guscio." },
+    { title: "Lettura delle Etichette", text: "Per legge europea gli allergeni principali sono in neretto o maiuscolo. Fai sempre attenzione alle diciture 'può contenere tracce di...'." },
+    { title: "Comunicazione al Ristorante", text: "Mostra sempre il tuo Pass Alimentare Alia al personale di sala per evitare incomprensioni e garantire una preparazione dedicata." },
+    { title: "Pentole e Materiali", text: "Se sei sensibile al nichel, preferisci pentole in vetro, pyrex o titanio ed evita stoviglie in acciaio inox non certificato o rigato." },
+    { title: "Conservazione Separata", text: "In dispensa e in frigorifero, riponi i prodotti dedicati agli allergici nei ripiani superiori per evitare la caduta accidentale di briciole." },
+    { title: "Olio di Frittura", text: "Attenzione alle fritture al ristorante: lo stesso olio viene spesso usato per cibi diversi, trasferendo facilmente tracce di pesce, glutine o uova." },
+    { title: "Cura dei Farmaci", text: "Anche i farmaci da banco e gli integratori possono contenere eccipienti allergizzanti come il lattosio o l'amido di frumento." },
+    { title: "Kit di Emergenza", text: "Porta sempre con te i farmaci prescritti (come l'autoiniettore di adrenalina o antistaminici) e verifica la data di scadenza con regolarità." },
+    { title: "Pasti in Viaggio", text: "In aereo o in treno, ordina con largo anticipo il pasto speciale e tieni sempre una scorta di snack sicuri a portata di mano." },
+    { title: "Buffet e Banchetti", text: "Nei buffet aperti il rischio di contaminazione promiscua con le posate di portata è altissimo: chiedi piatti serviti direttamente dalla cucina." }
+];
+
 const TRANSLATIONS = {
     it: { title: "Scheda Intolleranze", subtitle: "Generato tramite Alia Engine", header: "ESIGENZE REGISTRATE", notice: "Si prega il personale di cucina/sala di prestare attenzione alle voci indicate per evitare contaminazioni incrociate.", empty: "Nessuna intolleranza selezionata." },
     en: { title: "Dietary Card", subtitle: "Generated via Alia Engine", header: "REGISTERED NEEDS", notice: "Kitchen and service staff are kindly requested to pay attention to the listed items to avoid cross-contamination.", empty: "No allergies selected." },
@@ -341,21 +499,20 @@ const TRANSLATIONS = {
 };
 
 let userState = {};
-let groupMembers = [];
 let mediaStream = null;
 let db = null;
+let recognition = null;
+let isListening = false;
+let currentTipIndex = 0;
 
 function initDB() {
     return new Promise((resolve, reject) => {
-        const request = indexedDB.open("AliaDatabase", 1);
+        const request = indexedDB.open("AliaDatabase", 2);
 
         request.onupgradeneeded = function(event) {
             const db = event.target.result;
             if (!db.objectStoreNames.contains("userState")) {
                 db.createObjectStore("userState", { keyPath: "id" });
-            }
-            if (!db.objectStoreNames.contains("groupMembers")) {
-                db.createObjectStore("groupMembers", { keyPath: "id", autoIncrement: true });
             }
         };
 
@@ -365,7 +522,6 @@ function initDB() {
         };
 
         request.onerror = function(event) {
-            console.error("IndexedDB Error:", event.target.errorCode);
             reject(event.target.errorCode);
         };
     });
@@ -376,17 +532,6 @@ function saveUserStateToDB(id, state) {
     const tx = db.transaction("userState", "readwrite");
     const store = tx.objectStore("userState");
     store.put({ id: id, state: state });
-}
-
-function saveAllGroupMembersToDB() {
-    if (!db) return;
-    const tx = db.transaction("groupMembers", "readwrite");
-    const store = tx.objectStore("groupMembers");
-    store.clear().onsuccess = () => {
-        groupMembers.forEach(member => {
-            store.add(member);
-        });
-    };
 }
 
 function loadDataFromDB() {
@@ -406,17 +551,7 @@ function loadDataFromDB() {
                     userState[item.id] = item.state;
                 });
             }
-
-            const txGroup = db.transaction("groupMembers", "readonly");
-            const storeGroup = txGroup.objectStore("groupMembers");
-            const requestGroup = storeGroup.getAll();
-
-            requestGroup.onsuccess = function() {
-                if (requestGroup.result.length > 0) {
-                    groupMembers = requestGroup.result.map(m => ({ name: m.name, needs: m.needs }));
-                }
-                resolve();
-            };
+            resolve();
         };
     });
 }
@@ -430,7 +565,7 @@ async function init() {
         await initDB();
         await loadDataFromDB();
     } catch (e) {
-        console.warn("Inizializzazione IndexedDB fallita, prosiguo in memoria locale:", e);
+        console.warn("Inizializzazione IndexedDB fallita:", e);
     }
 
     const list = document.getElementById('allergens-list');
@@ -450,9 +585,34 @@ async function init() {
         list.appendChild(card);
     });
 
-    renderGroupMembers();
-    renderGroupMatrix();
     updatePass();
+    initSpeechRecognition();
+    renderTip();
+}
+
+function renderTip() {
+    const tip = TIPS[currentTipIndex];
+    document.getElementById('tip-number').innerText = `${String(currentTipIndex + 1).padStart(2, '0')} / ${TIPS.length}`;
+    document.getElementById('tip-title').innerText = tip.title;
+    document.getElementById('tip-content').innerText = tip.text;
+
+    const indicators = document.getElementById('tip-indicators');
+    indicators.innerHTML = "";
+    TIPS.forEach((_, idx) => {
+        const dot = document.createElement('div');
+        dot.className = `h-2 rounded-full transition-all ${idx === currentTipIndex ? 'w-5 bg-yellow-500' : 'w-2 bg-slate-200'}`;
+        indicators.appendChild(dot);
+    });
+}
+
+function nextTip() {
+    currentTipIndex = (currentTipIndex + 1) % TIPS.length;
+    renderTip();
+}
+
+function prevTip() {
+    currentTipIndex = (currentTipIndex - 1 + TIPS.length) % TIPS.length;
+    renderTip();
 }
 
 function cycleState(id) {
@@ -469,19 +629,23 @@ function cycleState(id) {
 
     saveUserStateToDB(id, nextState);
     updatePass();
-    renderGroupMatrix();
 }
 
 function switchTab(tabId) {
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-    document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+    const targetSection = document.getElementById(`sec-${tabId}`);
+    if (targetSection) targetSection.classList.remove('hidden');
     
     document.querySelectorAll('.nav-btn').forEach(el => {
         el.classList.remove('text-yellow-600');
         el.classList.add('text-slate-400');
     });
-    document.getElementById(`nav-${tabId}`).classList.remove('text-slate-400');
-    document.getElementById(`nav-${tabId}`).classList.add('text-yellow-600');
+
+    const activeNav = document.getElementById(`nav-${tabId}`);
+    if (activeNav && activeNav.classList.contains('nav-btn')) {
+        activeNav.classList.remove('text-slate-400');
+        activeNav.classList.add('text-yellow-600');
+    }
 
     if (tabId !== 'scanner' && mediaStream) {
         stopCamera();
@@ -513,7 +677,7 @@ async function toggleCamera() {
         btnCam.classList.replace('bg-yellow-400', 'bg-rose-600');
         btnCam.classList.replace('text-slate-900', 'text-white');
     } catch (err) {
-        alert("Impossibile accedere alla fotocamera diretta. Puoi scattare o caricare una foto dal pulsante sottostante.");
+        alert("Impossibile accedere alla fotocamera. Carica un'immagine dall'apposito pulsante.");
     }
 }
 
@@ -563,7 +727,7 @@ function processImageSource(imageSrc) {
     const statusText = document.getElementById('status-text');
     const placeholder = document.getElementById('camera-placeholder');
     placeholder.classList.remove('hidden');
-    statusText.innerText = "Analisi OCR del testo in corso...";
+    statusText.innerText = "Analisi OCR in corso...";
 
     Tesseract.recognize(
         imageSrc,
@@ -573,7 +737,7 @@ function processImageSource(imageSrc) {
         analyzeIngredientText(text || "");
     }).catch(err => {
         statusText.innerText = "Errore lettura immagine.";
-        alert("Impossibile elaborare l'immagine. Assicurati che il testo sia chiaro.");
+        alert("Impossibile elaborare l'immagine. Assicurati che il testo sia nitido.");
     });
 }
 
@@ -638,80 +802,6 @@ function loadPreset(index) {
     analyzeIngredientText(preset.text);
 }
 
-function addGroupMember() {
-    const input = document.getElementById('member-name');
-    const name = input.value.trim();
-    if (!name) return;
-
-    const activeUserAllergens = ALLERGENS
-        .filter(a => userState[a.id] !== "no")
-        .map(a => ({ name: a.names.it, danger: userState[a.id] === "danger" }));
-
-    groupMembers.push({ name, needs: activeUserAllergens });
-    input.value = "";
-    
-    saveAllGroupMembersToDB();
-    renderGroupMembers();
-    renderGroupMatrix();
-}
-
-function renderGroupMembers() {
-    const list = document.getElementById('group-members-list');
-    list.innerHTML = "";
-    groupMembers.forEach((m, idx) => {
-        const chip = document.createElement('div');
-        chip.className = "bg-slate-100 border border-slate-200 text-slate-800 text-xs px-3 py-1 rounded-2xl flex items-center gap-1.5 font-medium";
-        chip.innerHTML = `
-            <span>${m.name}</span>
-            <button onclick="removeGroupMember(${idx})" class="text-slate-400 hover:text-rose-500 font-bold ml-1">&times;</button>
-        `;
-        list.appendChild(chip);
-    });
-}
-
-function removeGroupMember(idx) {
-    groupMembers.splice(idx, 1);
-    saveAllGroupMembersToDB();
-    renderGroupMembers();
-    renderGroupMatrix();
-}
-
-function renderGroupMatrix() {
-    const matrix = document.getElementById('group-matrix');
-    matrix.innerHTML = "";
-
-    if (groupMembers.length === 0) {
-        matrix.innerHTML = `<p class="text-xs text-slate-400 italic">Aggiungi membri per calcolare le esigenze del gruppo.</p>`;
-        return;
-    }
-
-    let totalNeeds = {};
-    groupMembers.forEach(m => {
-        m.needs.forEach(n => {
-            if (!totalNeeds[n.name] || n.danger) {
-                totalNeeds[n.name] = n.danger;
-            }
-        });
-    });
-
-    const keys = Object.keys(totalNeeds);
-    if (keys.length === 0) {
-        matrix.innerHTML = `<p class="text-xs text-emerald-600 font-semibold">Nessuna restrizione per il gruppo attuale.</p>`;
-        return;
-    }
-
-    keys.forEach(need => {
-        const isDanger = totalNeeds[need];
-        const row = document.createElement('div');
-        row.className = `flex items-center justify-between p-2.5 rounded-2xl border text-xs ${isDanger ? 'bg-rose-50 border-rose-200' : 'bg-amber-50/50 border-amber-200/60'}`;
-        row.innerHTML = `
-            <span class="font-semibold ${isDanger ? 'text-rose-800' : 'text-slate-800'}">${need}</span>
-            <span class="${isDanger ? 'text-rose-600' : 'text-amber-700'} text-[10px] font-funky uppercase tracking-wider font-bold">${isDanger ? 'PERICOLO' : 'ATTENZIONE'}</span>
-        `;
-        matrix.appendChild(row);
-    });
-}
-
 function updatePass() {
     const list = document.getElementById('pass-allergens-list');
     list.innerHTML = "";
@@ -742,6 +832,172 @@ function updatePassLanguage() {
     document.getElementById('pass-notice').innerText = t.notice;
 
     updatePass();
+}
+
+function initSpeechRecognition() {
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.lang = 'it-IT';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onstart = function() {
+            isListening = true;
+            document.querySelector('.ai-orb-outer').classList.add('listening');
+            document.getElementById('ai-mic-btn').classList.add('bg-rose-500', 'text-white');
+        };
+
+        recognition.onend = function() {
+            isListening = false;
+            document.querySelector('.ai-orb-outer').classList.remove('listening');
+            document.getElementById('ai-mic-btn').classList.remove('bg-rose-500', 'text-white');
+        };
+
+        recognition.onresult = function(event) {
+            const transcript = event.results[0][0].transcript;
+            document.getElementById('ai-user-input').value = transcript;
+            sendAiMessage();
+        };
+    }
+}
+
+function toggleVoiceRecognition() {
+    if (!recognition) {
+        alert("Il riconoscimento vocale non è supportato su questo browser.");
+        return;
+    }
+    if (isListening) {
+        recognition.stop();
+    } else {
+        recognition.start();
+    }
+}
+
+function sendAiMessage() {
+    const input = document.getElementById('ai-user-input');
+    const text = input.value.trim();
+    if (!text) return;
+
+    appendChatMessage('user', text);
+    input.value = "";
+
+    setTimeout(() => {
+        const aiResponse = generateAiResponse(text);
+        appendChatMessage('ai', aiResponse);
+        speakAiResponse(aiResponse);
+    }, 400);
+}
+
+function askAiQuick(question) {
+    document.getElementById('ai-user-input').value = question;
+    sendAiMessage();
+}
+
+function appendChatMessage(sender, text) {
+    const history = document.getElementById('ai-chat-history');
+    const msg = document.createElement('div');
+    if (sender === 'user') {
+        msg.className = "bg-slate-900 text-white p-3 rounded-2xl rounded-tr-none ml-auto max-w-[85%] leading-relaxed";
+    } else {
+        msg.className = "bg-amber-50 text-slate-800 p-3.5 rounded-2xl rounded-tl-none border border-amber-200/60 max-w-[90%] leading-relaxed font-medium";
+    }
+    msg.innerText = text;
+    history.appendChild(msg);
+    history.scrollTop = history.scrollHeight;
+}
+
+function generateAiResponse(query) {
+    const q = query.toLowerCase();
+
+    const KB = [
+        {
+            keywords: ['glutine', 'celiac', 'frumento', 'pasta', 'pane', 'farro', 'orzo', 'segale'],
+            response: "In caso di sensibilità o celiachia, i cereali naturalmente privi di glutine sono riso, mais, grano saraceno, quinoa, miglio e amaranto. Presta attenzione a contaminazioni da avena non certificata e verifica sempre la dicitura 'Senza Glutine' o il simbolo della spiga sbarrata."
+        },
+        {
+            keywords: ['nichel', 'pentole', 'pomodor', 'cacao', 'cioccolato', 'lattina', 'scatola'],
+            response: "Il nichel è un metallo pesante presente in molti cibi e stoviglie. Per ridurne l'accumulo: preferisci pentole in vetro, pyrex o titanio ed evita l'acciaio inox non testato; riduci il consumo di cacao, pomodori, legumi, frutta a guscio e cibi conservati in lattina."
+        },
+        {
+            keywords: ['lattosio', 'latte', 'formagg', 'derivati', 'latticini', 'yogurt'],
+            response: "Puoi sostituire il latte vaccino con bevande vegetali (riso, mandorla, soia, avena gluten-free). Molti formaggi a lunga stagionatura (come Parmigiano Reggiano oltre i 24-30 mesi) sono naturalmente privi di lattosio. Esistono anche integratori dell'enzima lattasi da assumere prima dei pasti."
+        },
+        {
+            keywords: ['uov', 'uovo', 'albume', 'tuorlo', 'maionese'],
+            response: "L'allergia alle uova richiede attenzione a prodotti da forno, pasta all'uovo, maionese e salse. Come sostituti nei dolci puoi usare mela grattugiata, banana schiacciata, semi di chia o lino idratati (aquafaba per montare a neve)."
+        },
+        {
+            keywords: ['frutta a guscio', 'noci', 'nocciol', 'mandorl', 'anacard', 'pistacch', 'arachid'],
+            response: "Le reazioni a frutta a guscio e arachidi possono essere severe. Leggi sempre bene le etichette, compresa la sezione 'può contenere tracce di'. Nei pesti o salse, puoi sostituire la frutta a guscio con semi di girasole o di zucca tostatati."
+        },
+        {
+            keywords: ['soia', 'lecitina'],
+            response: "La soia è un allergene comune usata spesso come emulsionante (lecitina di soia) nei prodotti industriali. Se devi evitarla, controlla gli ingredienti di cioccolato, snack e preparati confezionati."
+        },
+        {
+            keywords: ['pesce', 'crostacei', 'molluschi', 'mare', 'gamber'],
+            response: "L'allergia al pesce o ai crostacei/molluschi non sempre coincide: si può essere allergici a uno solo di questi gruppi. Attenzione alla frittura mista (contaminazione dell'olio) e alle salse orientali (salsa d'ostrices o di pesce)."
+        },
+        {
+            keywords: ['fava', 'favismo', 'g6pd', 'piselli'],
+            response: "Nel favismo (deficit di G6PD) è fondamentale evitare l'assunzione e l'inhalazione di polline di fave, e l'assunzione di piselli o certi farmaci ossidanti. Consulta sempre il medico per la lista farmaci da evitare."
+        },
+        {
+            keywords: ['solfiti', 'vino', 'aceto'],
+            response: "I solfiti sono usati come conservanti ed antiossidanti in vini, aceti, frutta secca e conserve. Per legge devono essere indicati se superano i 10 mg/kg o 10 mg/l."
+        },
+        {
+            keywords: ['ristorante', 'fuori', 'cameriere', 'locali', 'pizzeria', 'menu'],
+            response: "Quando mangi fuori casa, usa la sezione 'Pass' dell'app per mostrare la scheda tradotta al personale di sala. Informa subito lo chef delle tue esigenze per prevenire la contaminazione crociata in cucina."
+        },
+        {
+            keywords: ['sos', 'reazione', 'shock', 'emergenza', 'respiro', 'gonfio'],
+            response: "In caso di reazione allergica grave o sintomi di shock anafilattico (difficoltà respiratorie, gonfiore a labbra/lingua): mantieni la calma, usa l'autoiniettore di adrenalina se ne disponi e premi il tasto ROSSO 'SOS' in alto per chiamare subito il 112!"
+        },
+        {
+            keywords: ['miei allergeni', 'a rischio', 'mio profilo', 'impostat', 'salvati'],
+            response: null
+        }
+    ];
+
+    if (q.includes('miei allergeni') || q.includes('a rischio') || q.includes('profilo') || q.includes('miei')) {
+        const dangers = ALLERGENS.filter(a => userState[a.id] === 'danger').map(a => a.names.it);
+        const warnings = ALLERGENS.filter(a => userState[a.id] === 'si').map(a => a.names.it);
+        
+        if (dangers.length === 0 && warnings.length === 0) {
+            return "Al momento non hai configurato allergeni nel tuo profilo personale. Puoi impostarli direttamente nella sezione Profilo!";
+        }
+        
+        let res = "";
+        if (dangers.length > 0) res += `🚨 PERICOLO ELEVATO: ${dangers.join(', ')}. `;
+        if (warnings.length > 0) res += `⚠️ ATTENZIONE: ${warnings.join(', ')}.`;
+        return res;
+    }
+
+    for (const item of KB) {
+        if (item.keywords && item.keywords.some(kw => q.includes(kw))) {
+            return item.response;
+        }
+    }
+
+    const dangers = ALLERGENS.filter(a => userState[a.id] === 'danger').map(a => a.names.it);
+    const warnings = ALLERGENS.filter(a => userState[a.id] === 'si').map(a => a.names.it);
+
+    let profileContext = "";
+    if (dangers.length > 0) profileContext += ` Ricorda che nel tuo profilo hai segnato ad alto rischio: ${dangers.join(', ')}.`;
+
+    return `Riguardo a "${query}": fai sempre attenzione alla lettura dell'etichetta degli ingredienti o attiva lo Scanner in app.${profileContext} Se hai dubbi specifici su un ingrediente, chiedimi pure!`;
+}
+
+function speakAiResponse(text) {
+    if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'it-IT';
+        utterance.rate = 1.0;
+        window.speechSynthesis.speak(utterance);
+    }
 }
 
 document.addEventListener('DOMContentLoaded', init);
